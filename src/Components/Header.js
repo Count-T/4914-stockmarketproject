@@ -1,4 +1,4 @@
-import React from "react";
+import { React, useState } from "react";
 import { fade, makeStyles } from "@material-ui/core/styles";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
@@ -14,6 +14,8 @@ import AccountCircle from "@material-ui/icons/AccountCircle";
 import MailIcon from "@material-ui/icons/Mail";
 import NotificationsIcon from "@material-ui/icons/Notifications";
 import MoreIcon from "@material-ui/icons/MoreVert";
+import ApiFetcher from "./ApiFetcher";
+import LineChart from "./LineChart";
 
 const useStyles = makeStyles((theme) => ({
   grow: {
@@ -80,9 +82,14 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function Header() {
+  let symbol = null;
+  const [sign, setSign] = useState("");
+  const [sent, setSent] = useState(false);
+  const [prices, setPrices] = useState(null);
+  const [stockSymbol, setStockSymbol] = useState(null);
   const classes = useStyles();
-  const [anchorEl, setAnchorEl] = React.useState(null);
-  const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = useState(null);
 
   const isMenuOpen = Boolean(anchorEl);
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
@@ -176,7 +183,14 @@ function Header() {
           <Typography className={classes.title} variant="h6" noWrap>
             Stock Market Project
           </Typography>
-          <div className={classes.search}>
+          <div
+            className={classes.search}
+            type="text"
+            onChange={(e) => {
+              symbol = e.target.value;
+              setStockSymbol((prevSymbol) => symbol);
+            }}
+          >
             <div className={classes.searchIcon}>
               <SearchIcon />
             </div>
@@ -189,6 +203,20 @@ function Header() {
               inputProps={{ "aria-label": "search" }}
             />
           </div>
+          <ApiFetcher
+            stockSearchSymbol={stockSymbol}
+            getPrices={(prices) => {
+              setPrices(prices);
+              console.log(prices);
+            }}
+            getSent={(sent) => {
+              setSent(sent);
+              console.log(sent);
+            }}
+            getSign={(sign) => {
+              setSign(sign);
+            }}
+          />
           <div className={classes.grow} />
           <div className={classes.sectionDesktop}>
             <IconButton
@@ -217,6 +245,13 @@ function Header() {
       </AppBar>
       {renderMobileMenu}
       {renderMenu}
+      <div>
+        {sent && prices.c != 0 ? (
+          <LineChart values={prices} label={sign} />
+        ) : (
+          "Please enter a valid stock"
+        )}
+      </div>
     </div>
   );
 }

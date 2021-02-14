@@ -1,24 +1,54 @@
 import React, { useEffect, useState } from "react";
+import { Button } from "@material-ui/core";
 import { Line } from "react-chartjs-2";
-function LineChart() {
-  const [person, setPerson] = useState(null);
-
-  useEffect(async () => {
-    const response = await fetch("https://api.randomuser.me/");
-    const data = await response.json();
-    const [item] = data.results;
-    setPerson(item);
-  }, []);
+function LineChart({ values, sent, label }) {
+  // const [values, setValues] = useState({
+  //   c: 0,
+  //   h: 0,
+  //   l: 0,
+  //   o: 0,
+  // });
+  // if (sent) {
+  //   setValues((prevValues) => valuePrices);
+  // }
+  let display = "";
+  const [zoom, setZoom] = useState(0);
+  useEffect(() => {}, [zoom, label]);
   return (
     <div>
-      {person && <div>{person.name.first}</div>}
+      <h4>Zoom In or Out</h4>
+      <Button
+        variant="contained"
+        color="secondary"
+        onClick={() => {
+          if (zoom - 10 < 0) {
+            setZoom((prevZoom) => 0);
+          } else {
+            setZoom((prevZoom) => prevZoom - 10);
+          }
+        }}
+      >
+        -
+      </Button>
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={() => {
+          if (zoom + 10 > values.o) {
+          } else {
+            setZoom((prevZoom) => values.o - 10);
+          }
+        }}
+      >
+        +
+      </Button>
       <Line
         data={{
-          labels: ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"],
+          labels: ["Open", "High", "Low", "Current"],
           datasets: [
             {
-              label: "# of Votes",
-              data: [1, 4, 9, 16, 25],
+              label: label,
+              data: [values.c, values.h, values.l, values.o],
               backgroundColor: [
                 "rgba(255, 99, 132, 0.2)",
                 "rgba(54, 162, 235, 0.2)",
@@ -39,9 +69,23 @@ function LineChart() {
             },
           ],
         }}
-        height={250}
-        width={600}
-      ></Line>
+        height={120}
+        width={300}
+        options={{
+          scales: {
+            yAxes: [
+              {
+                ticks: {
+                  min: zoom,
+                  callback: function (value, index, values) {
+                    return "$" + value;
+                  },
+                },
+              },
+            ],
+          },
+        }}
+      />
     </div>
   );
 }
