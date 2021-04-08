@@ -21,10 +21,10 @@ function LineChart({ values, sent, label }) {
         variant="contained"
         color="secondary"
         onClick={() => {
-          if (zoom - 10 < 0) {
+          if (zoom - 20 == 0) {
             setZoom((prevZoom) => 0);
           } else {
-            setZoom((prevZoom) => prevZoom - 10);
+            setZoom((prevZoom) => prevZoom - (prevZoom - 20));
           }
         }}
       >
